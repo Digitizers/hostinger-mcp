@@ -1,0 +1,3 @@
+# Real MCP config may contain Hostinger API tokens — keep it local
+.mcp.json
+*.docx

@@ -1,0 +1,20 @@
+{
+  "_comment": "Copy to .mcp.json (gitignored) and fill real tokens; never commit them. One connection per category binary you need (keeps context lean) and one per Hostinger account. Get the API token from hPanel. Node.js v24+ required.",
+  "mcpServers": {
+    "hostinger-acctA-vps": {
+      "type": "stdio",
+      "command": "hostinger-vps-mcp",
+      "env": { "HOSTINGER_API_TOKEN": "ACCT_A_TOKEN" }
+    },
+    "hostinger-acctA-dns": {
+      "type": "stdio",
+      "command": "hostinger-dns-mcp",
+      "env": { "HOSTINGER_API_TOKEN": "ACCT_A_TOKEN" }
+    },
+    "hostinger-acctB-vps": {
+      "type": "stdio",
+      "command": "hostinger-vps-mcp",
+      "env": { "HOSTINGER_API_TOKEN": "ACCT_B_TOKEN" }
+    }
+  }
+}

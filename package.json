@@ -1,0 +1,8 @@
+{
+  "name": "hostinger-mcp",
+  "version": "1.0.0",
+  "description": "Operational Claude Code & OpenClaw skill for managing Hostinger infrastructure (VPS, hosting, domains, DNS, Reach, billing) via the official Hostinger MCP server — category-binary loading, multi-account, write-confirmation safety.",
+  "private": false,
+  "license": "MIT",
+  "files": [".claude/skills/hostinger-mcp"]
+}
