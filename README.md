@@ -7,7 +7,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 
-A production-grade **Claude Code & OpenClaw skill** for managing [Hostinger](https://www.hostinger.com/) infrastructure — VPS, websites, domains, DNS, email (Reach), and billing — through the official **Hostinger MCP server**, across one or many accounts, with a safety rule on every write.
+A production-grade **Claude Code & OpenClaw skill** for managing [Hostinger](https://digitizer.li/hostinger) infrastructure — VPS, websites, domains, DNS, email (Reach), and billing — through the official **Hostinger MCP server**, across one or many accounts, with a safety rule on every write.
 
 This is not just a tool reference. It is an operational playbook for running Hostinger responsibly: category-scoped tool loading (so you never drown in 127 tools at once), VPS provisioning and lifecycle, domain/DNS changes, and money-spending guardrails — with write-confirmation on anything that changes state or costs money.
 
