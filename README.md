@@ -27,7 +27,7 @@ This is not just a tool reference. It is an operational playbook for running Hos
 ├── SKILL.md                       # core: category-binary loading, safety, multi-account, auth
 └── references/
     ├── installation.md            # npm install, token, 7 binaries, Claude config, multi-account
-    ├── tools-catalog.md           # all 127 tools, 7 categories, R / W / W!
+    ├── tools-catalog.md           # all 127 tools, 6 categories / 7 binaries, R / W / W!
     └── workflows-vps.md           # flagship VPS playbook
 ```
 

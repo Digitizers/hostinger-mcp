@@ -47,7 +47,7 @@ Managing Hostinger infrastructure — VPS, hosting, domains, DNS, Reach, billing
 
 2. **Write operations require explicit confirmation.** Before any write tool, present: the **account**, the tool name, the **target resource (ID + name)**, the parameters, and the expected impact. Wait for an explicit "yes". One confirmation ≠ blanket consent for further operations, and a confirmation on one account never carries to another.
 
-3. **Money-spending operations require cost-confirmation.** `domains_purchaseNewDomainV1`, `VPS_purchaseNewVirtualMachineV1`, subscription create/cancel, and `billing_setDefaultPaymentMethodV1` spend **real money**. Confirm the **cost AND the account** before executing.
+3. **Money-spending operations require cost-confirmation.** `domains_purchaseNewDomainV1`, `VPS_purchaseNewVirtualMachineV1`, enabling billing auto-renewal, and `billing_setDefaultPaymentMethodV1` spend **real money** (now or on the next renewal). Confirm the **cost AND the account** before executing.
 
 4. **Destructive operations double-confirm (W!).** Any `*delete*` tool, `VPS_recreateVirtualMachineV1` (reinstalls the OS, **wipes all data**), and `DNS_resetDNSRecordsV1` on production require confirmation of **both** the operation and the **specific target**.
 
