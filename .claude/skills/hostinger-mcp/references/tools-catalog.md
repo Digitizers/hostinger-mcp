@@ -160,7 +160,7 @@ Flags: **R** = read-only · **W** = write (requires confirmation) · **W!** = de
 | `billing_getCatalogItemListV1` | R | List catalog items available for order (prices in cents). |
 | `billing_getSubscriptionListV1` | R | List all subscriptions on your account. |
 | `billing_getPaymentMethodListV1` | R | List payment methods available for placing orders. |
-| `billing_enableAutoRenewalV1` | W | Enable auto-renewal for a subscription. |
+| `billing_enableAutoRenewalV1` | W! | 💸 Enable auto-renewal for a subscription (charges automatically at renewal). |
 | `billing_disableAutoRenewalV1` | W | Disable auto-renewal for a subscription. |
 | `billing_setDefaultPaymentMethodV1` | W! | 💸 Set the default payment method for future orders. |
 | `billing_deletePaymentMethodV1` | W! | Delete a payment method from your account. |

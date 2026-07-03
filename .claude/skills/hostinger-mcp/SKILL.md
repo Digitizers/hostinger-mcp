@@ -1,6 +1,6 @@
 ---
 name: hostinger-mcp
-version: 1.0.0
+version: 1.0.1
 license: MIT
 description: |
   Operational guide for managing Hostinger infrastructure — VPS, websites/hosting, domains, DNS, email marketing (Reach), and billing — via the official Hostinger MCP server (npm hostinger-api-mcp), across one or several Hostinger accounts.
