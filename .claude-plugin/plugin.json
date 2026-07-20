@@ -2,8 +2,5 @@
   "name": "hostinger-mcp",
   "displayName": "Hostinger MCP",
   "description": "Production-grade skill for managing Hostinger hosting via the official hostinger-api-mcp server — VPS, domains, DNS, backups, and safe write-gating.",
-  "author": {
-    "name": "Ben Kalsky",
-    "email": "benkalsky@gmail.com"
-  }
+  "author": { "name": "Digitizer" }
 }
