@@ -41,11 +41,12 @@ jobs:
 
       - name: No-leak guard
         run: |
+          set -euo pipefail
           # "digitizer-skills" (public marketplace) and the "Digitizers/" org prefix are
           # allowed. Strip those exact tokens, then re-scan the residue — so a line like
           # "Digitizers/digitizer-os" still fails on its remaining "digitizer-os" part,
           # unlike a line-level grep -v exemption which would wave the whole line through.
-          if grep -rniE "digitizer|דיגיטייזר|Ben/Avi" .claude/ | perl -pe 's/(?<![A-Za-z0-9-])digitizer-skills(?![A-Za-z0-9-])//g; s/(?<![A-Za-z0-9])Digitizers\///g' | grep -iE "digitizer|דיגיטייזר|Ben/Avi"; then
+          if grep -rniE "digitizer|דיגיטייזר|Ben/Avi" .claude/ | perl -pe 's/(?<![A-Za-z0-9-])digitizer-skills(?![A-Za-z0-9-])//g; s/(?<![A-Za-z0-9-])Digitizers\///g' | grep -iE "digitizer|דיגיטייזר|Ben/Avi"; then
             echo "::error::studio framing / personal names in the skill payload — keep .claude/ generic"; exit 1
           fi
           if grep -rniE "Ben/Avi|benkalsky" README.md; then
