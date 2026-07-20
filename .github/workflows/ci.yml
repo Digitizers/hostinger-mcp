@@ -41,7 +41,8 @@ jobs:
 
       - name: No-leak guard
         run: |
-          if grep -rniE "digitizer|דיגיטייזר|Ben/Avi" .claude/; then
+          # "digitizer-skills" is the public marketplace name — allowed; anything else (digitizer-os, bare digitizer, Hebrew, names) still fails.
+          if grep -rniE "digitizer|דיגיטייזר|Ben/Avi" .claude/ | grep -viE "digitizer-skills"; then
             echo "::error::studio framing / personal names in the skill payload — keep .claude/ generic"; exit 1
           fi
           if grep -rniE "Ben/Avi|benkalsky" README.md; then
