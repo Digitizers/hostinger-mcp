@@ -1,0 +1,13 @@
+{
+  "_comment": "Committed connection config — env-var placeholders ONLY, never real tokens (tracked file). The server starts when HOSTINGER_API_TOKEN is set: on devices via the shell env, in claude.ai cloud environments via the environment's env vars; unset, it is skipped silently. Default binary is the full 127-tool hostinger-api-mcp; set HOSTINGER_MCP_BINARY to a category binary (hostinger-vps-mcp, hostinger-dns-mcp, ...) to keep the tool surface lean per SKILL.md. Multi-account setups keep using `claude mcp add -s user` per references/installation.md.",
+  "mcpServers": {
+    "hostinger": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "-p", "hostinger-api-mcp", "${HOSTINGER_MCP_BINARY:-hostinger-api-mcp}"],
+      "env": {
+        "HOSTINGER_API_TOKEN": "${HOSTINGER_API_TOKEN}"
+      }
+    }
+  }
+}

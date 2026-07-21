@@ -64,6 +64,19 @@ The package ships seven binaries. Each exposes a subset of the 127 tools. Connec
 
 ## Step 4 — Connect Claude Code (stdio)
 
+### Env var (zero-config — devices and cloud sessions)
+
+The repo commits a placeholder-only `.mcp.json` that launches the server via `npx` and reads
+`${HOSTINGER_API_TOKEN}`. Set that variable — in your shell profile on a device, or in the
+claude.ai cloud environment's environment variables for web/phone sessions — and the
+`hostinger` connection starts automatically; unset, the server is skipped silently. By default
+it loads the full `hostinger-api-mcp` (all 127 tools); set `HOSTINGER_MCP_BINARY` to a category
+binary (e.g. `hostinger-vps-mcp`) to keep the tool surface lean. Never put a real token in
+`.mcp.json` itself; it is tracked in git. Cloud environments with a restricted network policy
+must allow the npm registry (for `npx`) and the Hostinger API.
+
+### Per-category user-scope connections (recommended for multi-category work)
+
 stdio is the default transport. Add one connection per binary you need. Example for the VPS binary:
 
 ```bash

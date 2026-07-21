@@ -5,7 +5,7 @@
 ![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-purple)
 ![Hostinger](https://img.shields.io/badge/Hostinger-MCP-673de6)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
 
 A production-grade **Claude Code & OpenClaw skill** for managing [Hostinger](https://digitizer.li/hostinger) infrastructure — VPS, websites, domains, DNS, email (Reach), and billing — through the official **Hostinger MCP server**, across one or many accounts, with a safety rule on every write.
 
@@ -60,6 +60,8 @@ Use it solo for your own boxes; reach for Aura when you operate a fleet on clien
 ## Activation
 
 The skill activates when Hostinger is discussed and a `hostinger-*` MCP server is connected (tools appear as `mcp__hostinger*__*`). For setup — see [`installation.md`](.claude/skills/hostinger-mcp/references/installation.md) and [`.mcp.json.example`](.mcp.json.example). Install with `npm i -g hostinger-api-mcp`; authenticate with a `HOSTINGER_API_TOKEN` from hPanel.
+
+**Zero-config connection via env var.** The repo commits a placeholder-only [`.mcp.json`](.mcp.json) that launches `hostinger-api-mcp` through `npx` and reads the token from the `HOSTINGER_API_TOKEN` environment variable — set it in your shell (devices) or in the claude.ai cloud environment's env vars (web/phone sessions) and the connection comes up on its own; leave it unset and the server simply doesn't start. Set `HOSTINGER_MCP_BINARY` (e.g. `hostinger-vps-mcp`) to load a single category binary instead of all 127 tools. Real tokens never go into the file — it is tracked in git. **Migrating from a local gitignored `.mcp.json`:** move your token to the env var (or `claude mcp add -s user`), delete the local file, then pull.
 
 ## Sources
 
