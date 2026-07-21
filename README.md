@@ -59,7 +59,7 @@ Use it solo for your own boxes; reach for Aura when you operate a fleet on clien
 
 ## Activation
 
-The skill activates when Hostinger is discussed and a `hostinger-*` MCP server is connected (tools appear as `mcp__hostinger*__*`). Two setup paths — pick one:
+The skill activates when Hostinger is discussed and a `hostinger*` MCP server is connected — the committed config's `hostinger`, or per-category names like `hostinger-vps` (tools appear as `mcp__hostinger*__*`). Two setup paths — pick one:
 
 **Zero-config connection via env var (recommended).** The repo commits a [`.mcp.json`](.mcp.json) that launches `hostinger-api-mcp` through `npx` (version-pinned, no global install needed) with the token from the `${HOSTINGER_API_TOKEN:-}` env placeholder — set the variable in your shell (devices) or in the claude.ai cloud environment's env vars (web/phone sessions) and the connection authenticates on its own. While the variable is unset the connection just shows as unavailable in `/mcp` (it can't authenticate) — set the var to bring it up. Set `HOSTINGER_MCP_BINARY` (e.g. `hostinger-vps-mcp`) to load a single category binary instead of all 127 tools. Real tokens never go into the file — it is tracked in git. **Migrating from a local gitignored `.mcp.json`:** move your token to the env var (or `claude mcp add -s user`), delete the local file, then pull.
 
