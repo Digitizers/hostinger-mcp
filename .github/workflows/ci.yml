@@ -53,9 +53,14 @@ jobs:
             echo "::error::personal name in README — use the studio brand, not personal names"; exit 1
           fi
           # Also scan the tracked MCP configs — placeholder-only by policy, so a
-          # real token pasted into them must fail CI.
+          # real token pasted into them must fail CI. Strip the "path:line:" grep
+          # prefix before the exemption filter: otherwise the ".mcp.json.example"
+          # filename matches the "example" exemption and waves real tokens through.
+          # No exemption for the HOSTINGER_API_TOKEN key name — only placeholder
+          # VALUES (${...}, YOUR_..., etc.) are exempt, so a real value still fails.
           if grep -rniE "(api[_-]?key|bearer|secret|password|token)[\"'[:space:]=:]+[A-Za-z0-9/_-]{24,}" .claude/ .mcp.json .mcp.json.example \
-             | grep -viE "your-|YOUR_|ACCT_[AB]|example|<|\$\{|placeholder|HOSTINGER_API_TOKEN"; then
+             | sed 's/^[^:]*:[0-9]*://' \
+             | grep -viE "your-|YOUR_|ACCT_[AB]|example|<|\$\{|placeholder"; then
             echo "::error::possible real secret found"; exit 1
           fi
           echo "no-leak guard passed"

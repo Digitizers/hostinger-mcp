@@ -4,7 +4,7 @@
     "hostinger": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "-p", "hostinger-api-mcp@1.8.2", "${HOSTINGER_MCP_BINARY:-hostinger-api-mcp}"],
+      "args": ["-y", "-p", "hostinger-api-mcp@1.8.2", "--", "${HOSTINGER_MCP_BINARY:-hostinger-api-mcp}"],
       "env": {
         "HOSTINGER_API_TOKEN": "${HOSTINGER_API_TOKEN:-}"
       }
