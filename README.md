@@ -59,9 +59,11 @@ Use it solo for your own boxes; reach for Aura when you operate a fleet on clien
 
 ## Activation
 
-The skill activates when Hostinger is discussed and a `hostinger-*` MCP server is connected (tools appear as `mcp__hostinger*__*`). For setup — see [`installation.md`](.claude/skills/hostinger-mcp/references/installation.md) and [`.mcp.json.example`](.mcp.json.example). Install with `npm i -g hostinger-api-mcp`; authenticate with a `HOSTINGER_API_TOKEN` from hPanel.
+The skill activates when Hostinger is discussed and a `hostinger-*` MCP server is connected (tools appear as `mcp__hostinger*__*`). Two setup paths — pick one:
 
-**Zero-config connection via env var.** The repo commits a placeholder-only [`.mcp.json`](.mcp.json) that launches `hostinger-api-mcp` through `npx` and reads the token from the `HOSTINGER_API_TOKEN` environment variable — set it in your shell (devices) or in the claude.ai cloud environment's env vars (web/phone sessions) and the connection comes up on its own; leave it unset and the server simply doesn't start. Set `HOSTINGER_MCP_BINARY` (e.g. `hostinger-vps-mcp`) to load a single category binary instead of all 127 tools. Real tokens never go into the file — it is tracked in git. **Migrating from a local gitignored `.mcp.json`:** move your token to the env var (or `claude mcp add -s user`), delete the local file, then pull.
+**Zero-config connection via env var (recommended).** The repo commits a [`.mcp.json`](.mcp.json) that launches `hostinger-api-mcp` through `npx` (version-pinned, no global install needed) with the token from the `${HOSTINGER_API_TOKEN:-}` env placeholder — set the variable in your shell (devices) or in the claude.ai cloud environment's env vars (web/phone sessions) and the connection authenticates on its own. While the variable is unset the connection just shows as unavailable in `/mcp` (it can't authenticate) — set the var to bring it up. Set `HOSTINGER_MCP_BINARY` (e.g. `hostinger-vps-mcp`) to load a single category binary instead of all 127 tools. Real tokens never go into the file — it is tracked in git. **Migrating from a local gitignored `.mcp.json`:** move your token to the env var (or `claude mcp add -s user`), delete the local file, then pull.
+
+**Manual per-category connections.** Install with `npm i -g hostinger-api-mcp` and wire user-scope connections per category/account with `claude mcp add -s user` — see [`installation.md`](.claude/skills/hostinger-mcp/references/installation.md) and [`.mcp.json.example`](.mcp.json.example).
 
 ## Sources
 

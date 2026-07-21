@@ -52,7 +52,9 @@ jobs:
           if grep -rniE "Ben/Avi|benkalsky" README.md; then
             echo "::error::personal name in README — use the studio brand, not personal names"; exit 1
           fi
-          if grep -rniE "(api[_-]?key|bearer|secret|password|token)[\"'[:space:]=:]+[A-Za-z0-9/_-]{24,}" .claude/ \
+          # Also scan the tracked MCP configs — placeholder-only by policy, so a
+          # real token pasted into them must fail CI.
+          if grep -rniE "(api[_-]?key|bearer|secret|password|token)[\"'[:space:]=:]+[A-Za-z0-9/_-]{24,}" .claude/ .mcp.json .mcp.json.example \
              | grep -viE "your-|YOUR_|ACCT_[AB]|example|<|\$\{|placeholder|HOSTINGER_API_TOKEN"; then
             echo "::error::possible real secret found"; exit 1
           fi
