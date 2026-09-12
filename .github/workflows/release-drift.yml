@@ -133,7 +133,12 @@ jobs:
                 | grep -m1 '^version:' | sed 's/^version:[[:space:]]*//' \
                 | tr -d '"' | tr -d "'" | xargs || true)
               if [ "$TAG_VERSION" != "$VERSION" ]; then
-                echo "::error::main is at $VERSION, but tag v$VERSION points at a commit whose SKILL.md says ${TAG_VERSION:-<none>}. ClawHub would publish that one. Re-cut the tag on the commit that carries $VERSION."
+                # Do NOT advise moving the tag. publish-clawhub.yml subscribes to
+                # "release: published" only, and moving a tag emits no event - the
+                # publish already ran against the old commit, so ClawHub would stay
+                # stale while this check turned green. Deleting the release and
+                # creating it again does emit the event.
+                echo "::error::main is at $VERSION, but tag v$VERSION points at a commit whose SKILL.md says ${TAG_VERSION:-<none>} - and that is the commit ClawHub published from. Moving the tag will not fix it: no release event fires, so nothing re-publishes. Delete the release and create it again on the commit that carries $VERSION (gh release delete v$VERSION --cleanup-tag, then gh release create v$VERSION --target main), or ship a new version."
                 exit 1
               fi
               echo "SKILL.md is at $VERSION, v$VERSION is published, and the tag carries $TAG_VERSION."
