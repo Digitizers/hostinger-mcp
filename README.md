@@ -5,7 +5,7 @@
 ![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-purple)
 ![Hostinger](https://img.shields.io/badge/Hostinger-MCP-673de6)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 
 A production-grade **Claude Code & OpenClaw skill** for managing [Hostinger](https://digitizer.li/hostinger) infrastructure — VPS, websites, domains, DNS, email (Reach), and billing — through the official **Hostinger MCP server**, across one or many accounts, with a safety rule on every write.
 
@@ -65,7 +65,7 @@ The skill activates when Hostinger is discussed and a `hostinger*` MCP server is
 
 **Zero-config connection via env var (recommended).** The repo commits a [`.mcp.json`](.mcp.json) that launches `hostinger-api-mcp` through `npx` (version-pinned, no global install needed) with the token from the `${HOSTINGER_API_TOKEN:-}` env placeholder — set the variable in your shell (devices) or in the claude.ai cloud environment's env vars (web/phone sessions) and the connection authenticates on its own. While the variable is unset the connection just shows as unavailable in `/mcp` (it can't authenticate) — set the var to bring it up. Set `HOSTINGER_MCP_BINARY` (e.g. `hostinger-vps-mcp`) to load a single category binary instead of all 127 tools. Real tokens never go into the file — it is tracked in git. **Migrating from a local gitignored `.mcp.json`:** move your token to the env var (or `claude mcp add -s user`), delete the local file, then pull.
 
-**Manual per-category connections.** Install with `npm i -g hostinger-api-mcp` and wire user-scope connections per category/account with `claude mcp add -s user` — see [`installation.md`](.claude/skills/hostinger-mcp/references/installation.md) and [`.mcp.json.example`](.mcp.json.example).
+**Manual per-category connections.** Install with `npm i -g hostinger-api-mcp@1.8.2` (pin it — the process holds a full-account token) and wire user-scope connections per category/account with `claude mcp add -s user`, passing the token from an env var rather than typing it into the command — see [`installation.md`](.claude/skills/hostinger-mcp/references/installation.md) and [`.mcp.json.example`](.mcp.json.example).
 
 ## Sources
 
