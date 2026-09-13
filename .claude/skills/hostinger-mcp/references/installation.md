@@ -36,6 +36,33 @@ pnpm add -g hostinger-api-mcp@1.8.2
 
 This installs the category binaries (see Step 3).
 
+### Verifying what the registry serves you
+
+A version pin says *which* release; it does not say what bytes that release is made of. npm
+publishes an integrity digest per version, and this is the one recorded for the pinned version:
+
+```
+hostinger-api-mcp@1.8.2
+sha512-hgTPR5Q9hFhLF9U3G50kf+yX0OF8mvbnQVInm63rzCtN43Ef4pwfRq724J0NWfudyq0HaIEsr1e5xQunOglGcQ==
+```
+
+Check the tarball the registry actually gives you against it:
+
+```bash
+npm pack hostinger-api-mcp@1.8.2
+printf 'sha512-%s\n' "$(openssl dgst -sha512 -binary hostinger-api-mcp-1.8.2.tgz | openssl base64 -A)"
+```
+
+Be clear about what this proves. npm forbids republishing a version with different content, so
+a value **recorded here, out of band** catches a registry that later serves different bytes for
+1.8.2 — that is a real check. Comparing instead against `npm view hostinger-api-mcp@1.8.2
+dist.integrity` proves much less: that digest travels from the same registry as the tarball, so
+it is integrity, not provenance — the same distinction the `EMCP_EXPECTED_SHA256` note makes in
+our Elementor kit. Neither check covers the dependency tree; for that, install into a project
+with a committed lockfile rather than globally.
+
+When you bump the pin, record the new digest here in the same commit.
+
 ---
 
 ## Step 2 — Get the API token
