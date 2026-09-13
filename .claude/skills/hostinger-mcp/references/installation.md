@@ -112,8 +112,18 @@ and run `hostinger-api-mcp --logout` before leaving a shared or handed-over mach
 
 **If a token may have been exposed** — pasted into a chat, committed, left in a history file or an
 old `~/.claude.json` entry — **revoke and regenerate it in hPanel**. There is no narrower recovery:
-the token carries the whole account. Grep the config for a leftover literal before assuming it is
-clean: `grep -o 'HOSTINGER_API_TOKEN[^,]*' ~/.claude.json`.
+the token carries the whole account.
+
+To check whether an old connection left a literal value behind, use a **presence** test — never one
+that prints the match, which would put a possibly still-live credential into your scrollback:
+
+```bash
+grep -Eq '"HOSTINGER_API_TOKEN"[[:space:]]*:[[:space:]]*"[^$"]' ~/.claude.json \
+  && echo 'A literal token is stored in ~/.claude.json — rotate it in hPanel, then re-add the connection with the placeholder form.'
+```
+
+`grep -q` prints nothing itself; the `[^$"]` excludes both a `${...}` placeholder and an empty
+value, so only a real stored secret trips it.
 
 
 ---
