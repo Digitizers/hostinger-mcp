@@ -13,28 +13,87 @@ This skill targets the **official Hostinger MCP** — a local npm server (`hosti
 
 ## Step 1 — Install
 
-**Preferred: do not install it globally at all.** The repo's committed `.mcp.json` launches the
-server with `npx -y -p hostinger-api-mcp@1.8.2` — a pinned version, resolved per run, nothing
-added to your PATH. If you use that route (Step 4), skip this step.
+This process receives a token with **full authority over your Hostinger account** (Step 2),
+and installing an npm package **runs its `preinstall` / `install` / `postinstall` scripts** —
+so whatever the registry hands you executes on your machine before you have looked at it. Pin
+the version, and check the bytes **before** the install, not after.
 
-If you do want the category binaries on your PATH, **pin the version**:
+The pinned version and the digest npm published for it:
 
-```bash
-npm install -g hostinger-api-mcp@1.8.2
-# or
-yarn global add hostinger-api-mcp@1.8.2
-# or
-pnpm add -g hostinger-api-mcp@1.8.2
+```
+hostinger-api-mcp@1.8.2
+sha512-hgTPR5Q9hFhLF9U3G50kf+yX0OF8mvbnQVInm63rzCtN43Ef4pwfRq724J0NWfudyq0HaIEsr1e5xQunOglGcQ==
 ```
 
-> **Why pinned.** This process receives a token with **full authority over your Hostinger
-> account** (Step 2). An unpinned install takes whatever the registry serves at that moment, on
-> every install and every reinstall — so a hijacked or compromised release of the package, or of
-> anything in its dependency tree, inherits that authority with no action on your part. Keep the
-> pin equal to the one in `.mcp.json` and bump both together, after reading the upstream release
-> notes at [github.com/hostinger/api-mcp-server](https://github.com/hostinger/api-mcp-server).
+### Fetch, verify, then install
+
+`npm pack` downloads the tarball without installing it, so nothing from the package has run
+yet when the comparison happens. The install then reads that **local, verified file** rather
+than fetching again:
+
+```bash
+PKG=hostinger-api-mcp@1.8.2
+EXPECTED='sha512-hgTPR5Q9hFhLF9U3G50kf+yX0OF8mvbnQVInm63rzCtN43Ef4pwfRq724J0NWfudyq0HaIEsr1e5xQunOglGcQ=='
+
+TGZ=$(npm pack "$PKG" --silent)
+ACTUAL="sha512-$(openssl dgst -sha512 -binary "$TGZ" | openssl base64 -A)"
+if [ "$ACTUAL" != "$EXPECTED" ]; then
+  echo "INTEGRITY MISMATCH for $PKG — nothing installed" >&2
+  echo "  expected: $EXPECTED" >&2
+  echo "  got:      $ACTUAL" >&2
+  rm -f "$TGZ"
+  exit 1
+fi
+
+if npm install -g "./$TGZ"; then   # or: yarn global add / pnpm add -g
+  rm -f "$TGZ"
+else
+  echo "install failed — the VERIFIED tarball is kept at ./$TGZ" >&2
+  exit 1
+fi
+```
+
+It fails closed at both ends. On a digest mismatch nothing is installed and no package script
+has run; on a failed install the block exits non-zero rather than being rescued by a
+successful `rm`, so a caller cannot read "cleanup succeeded" as "install succeeded" and go on
+using whatever version was already there. The verified tarball is kept on failure, so a retry
+does not re-fetch. Do not
+replace the comparison with a bare `npm pack` that prints the digest for you to eyeball — a
+digest you read after the install is a report, not a control.
 
 This installs the category binaries (see Step 3).
+
+### What this does and does not prove
+
+npm forbids republishing a version with different content, so a digest **recorded here, out
+of band** catches a registry that later serves different bytes for 1.8.2. That is the real
+check. Comparing instead against `npm view hostinger-api-mcp@1.8.2 dist.integrity` proves much
+less: that digest travels from the same registry as the tarball, so it is integrity, not
+provenance — the same distinction the `EMCP_EXPECTED_SHA256` note makes in our Elementor kit.
+
+Neither check covers the **dependency tree**: the verified tarball's own dependencies are
+resolved at install time. For that, install into a project with a committed lockfile rather
+than globally.
+
+When you bump the pin, record the new digest here in the same commit.
+
+### The `npx` route is pinned but unverified
+
+The repo's committed `.mcp.json` launches the server with `npx -y -p hostinger-api-mcp@1.8.2`
+(Step 4). That needs no global install and keeps your PATH clean, and the version is pinned —
+but npx fetches and executes in one step, **every run**, so there is no point at which the
+bytes can be compared first. If you want the verified path, do the install above and point the
+connection at the installed binary instead:
+
+```bash
+claude mcp add --transport stdio \
+  -e 'HOSTINGER_API_TOKEN=${HOSTINGER_API_TOKEN:-}' \
+  -s user \
+  hostinger hostinger-api-mcp
+```
+
+Pick deliberately: zero-setup and unverified per run, or verified once and pinned to what you
+checked.
 
 ---
 

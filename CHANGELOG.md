@@ -1,5 +1,38 @@
 # Changelog
 
+## 1.2.1 - 2026-09-13
+
+From the ClawHub audit of 1.2.0. T08 and T09 are gone; ClawScan's remaining
+`install_mechanism` concern — and AIG's High — is that the reviewed artifact pins a version
+but carries "no vendored implementation, lockfile, or hash".
+
+- **The pinned version now has a recorded integrity digest, checked BEFORE the install.**
+  Installing an npm package runs its `preinstall` / `install` / `postinstall` scripts, so a
+  digest printed for the user to eyeball after `npm install -g` is a report, not a control —
+  altered code has already executed. `installation.md` now fetches with `npm pack` (which
+  installs nothing), compares against the recorded `sha512` and **exits non-zero on a
+  mismatch with nothing installed**, then installs from that verified local tarball rather
+  than fetching again. The install also exits non-zero when `npm install`
+  fails, rather than being rescued by a successful cleanup. The `npx` route in `.mcp.json` is
+  pinned but cannot be verified — it fetches and executes in one step, every run — and that
+  trade is now stated where the route is offered, in `installation.md` **and in the README**,
+  with the verified alternative beside it: the README no longer offers a bare `npm i -g` of
+  its own. Recording the digest **here** is what
+  makes the check worth running: npm forbids republishing a version with different content, so a value
+  held out of band catches a registry that later serves different bytes for 1.8.2. Comparing
+  against `npm view … dist.integrity` instead proves much less — that digest travels from the
+  same registry as the tarball, so it is integrity, not provenance, the same distinction the
+  `EMCP_EXPECTED_SHA256` note makes in our Elementor kit. Neither check covers the dependency
+  tree, and the text says so. Bumping the pin means recording the new digest in the same
+  commit.
+
+The other remaining `concern`, `Credentials`, is that `HOSTINGER_API_TOKEN` carries full
+account authority with no per-tool permission at the MCP layer. That is a property of
+Hostinger's API, not of this skill: there is no narrower token to ask for. It is disclosed in
+SKILL.md, in the audit's own words ("disclosed and aligned with the MCP integration"), and
+the category binaries reduce the tool surface an agent sees even though they cannot reduce
+the token's authority.
+
 ## 1.2.0 - 2026-09-13
 ClawHub security audit (1.1.0) — the two `unexpected` findings, both in `references/installation.md`:
 - **Pinned the global install** (ClawScan T08 / `install_mechanism`). Step 1 offered `npm install -g hostinger-api-mcp` with no version, so every install and reinstall took whatever the registry served at that moment — into a process that then receives a token with full authority over the Hostinger account. All three package managers now pin `@1.8.2`, the same version `.mcp.json` already pinned for its `npx` launch, with the reason stated and instructions to bump both together. The section now leads with the `npx` route, which needs no global install at all. README's manual path pinned to match.
