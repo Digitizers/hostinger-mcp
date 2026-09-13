@@ -1,6 +1,6 @@
 ---
 name: hostinger-mcp
-version: 1.1.0
+version: 1.2.0
 license: MIT
 description: |
   Operational guide for managing Hostinger infrastructure — VPS, websites/hosting, domains, DNS, email marketing (Reach), and billing — via the official Hostinger MCP server (npm hostinger-api-mcp), across one or several Hostinger accounts.
@@ -115,6 +115,8 @@ Name each connection `hostinger-<account>` — or, when loading per-category bin
 - **OAuth 2.0 PKCE (interactive alternative).** Available on **stdio transport only**, via `hostinger-api-mcp --login`.
 
 The token has **full account access** — every action the account can perform in hPanel. There is **no granular / per-tool permission at the MCP layer**: any connected client can call any tool. Treat it like a password and **never print it** in responses. If the user asks to see it, refer them to hPanel.
+
+**Never put a token on a command line** when helping a user set this up — it lands in their shell history in plaintext and is visible in `ps` while the command runs. Read it into an env var first, and pass the variable; see "Handling the token safely" in `references/installation.md` for that, for the plaintext copy `claude mcp add -s user` leaves in `~/.claude.json`, and for what to do if a token may have been exposed (revoke and regenerate in hPanel — nothing narrower exists).
 
 For the full connection and multi-account setup, see `references/installation.md`.
 

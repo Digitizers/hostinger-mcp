@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 - 2026-09-13
+ClawHub security audit (1.1.0) — the two `unexpected` findings, both in `references/installation.md`:
+- **Pinned the global install** (ClawScan T08 / `install_mechanism`). Step 1 offered `npm install -g hostinger-api-mcp` with no version, so every install and reinstall took whatever the registry served at that moment — into a process that then receives a token with full authority over the Hostinger account. All three package managers now pin `@1.8.2`, the same version `.mcp.json` already pinned for its `npx` launch, with the reason stated and instructions to bump both together. The section now leads with the `npx` route, which needs no global install at all. README's manual path pinned to match.
+- **Token handling** (ClawScan T09 / `persistence_privilege`). The setup examples put the token literally on the command line (`-e HOSTINGER_API_TOKEN=YOUR_TOKEN`), which writes it to `~/.zsh_history` / `~/.bash_history` in plaintext and exposes it in `ps` while the command runs. A new "Handling the token safely" section covers the three exposures — shell history, the plaintext copy `claude mcp add -s user` leaves in `~/.claude.json` (which passing a variable does NOT avoid — it only keeps it out of the history), and the OAuth credential file at `~/.config/hostinger-mcp/credentials.json` — with `read -rs` for entry, `chmod 600` checks for both files, and revoke-and-regenerate in hPanel as the only recovery for an exposed token. Every example, single- and multi-account, now passes a variable. SKILL.md's credentials rule states the command-line prohibition so the agent follows it when setting a user up.
+
+No tool, capability, or safety-rule changes.
+
 ## 1.1.0 - 2026-07-21
 Zero-config connection for cloud sessions and devices:
 - **Committed `.mcp.json`** (secrets as placeholders only) — launches `hostinger-api-mcp` via `npx` with the token from the `HOSTINGER_API_TOKEN` env var, so claude.ai cloud environments (which load the repo's `.mcp.json` from the clone and inject env vars from the environment config) and devices with the var in their shell get the tools with no per-machine setup. The `${HOSTINGER_API_TOKEN:-}` default keeps the config parseable when the var is unset — the connection then just shows as unavailable until the token is provided (a bare unset `${VAR}` would fail the whole config parse, per the Claude Code docs — Codex round-1 P1). Optional `HOSTINGER_MCP_BINARY` picks a category binary (e.g. `hostinger-vps-mcp`) to keep the tool surface lean.
