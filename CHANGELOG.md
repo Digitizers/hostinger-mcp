@@ -6,10 +6,16 @@ From the ClawHub audit of 1.2.0. T08 and T09 are gone; ClawScan's remaining
 `install_mechanism` concern — and AIG's High — is that the reviewed artifact pins a version
 but carries "no vendored implementation, lockfile, or hash".
 
-- **The pinned version now has a recorded integrity digest.** `installation.md` carries
-  npm's published `sha512` for `hostinger-api-mcp@1.8.2` and the two commands that check the
-  tarball the registry actually serves against it. Recording it **here** is what makes it a
-  check worth running: npm forbids republishing a version with different content, so a value
+- **The pinned version now has a recorded integrity digest, checked BEFORE the install.**
+  Installing an npm package runs its `preinstall` / `install` / `postinstall` scripts, so a
+  digest printed for the user to eyeball after `npm install -g` is a report, not a control —
+  altered code has already executed. `installation.md` now fetches with `npm pack` (which
+  installs nothing), compares against the recorded `sha512` and **exits non-zero on a
+  mismatch with nothing installed**, then installs from that verified local tarball rather
+  than fetching again. The `npx` route in `.mcp.json` is pinned but cannot be verified — it
+  fetches and executes in one step, every run — and that trade is now stated where the route
+  is offered, with the verified alternative beside it. Recording the digest **here** is what
+  makes the check worth running: npm forbids republishing a version with different content, so a value
   held out of band catches a registry that later serves different bytes for 1.8.2. Comparing
   against `npm view … dist.integrity` instead proves much less — that digest travels from the
   same registry as the tarball, so it is integrity, not provenance, the same distinction the
