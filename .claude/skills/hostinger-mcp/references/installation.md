@@ -114,16 +114,32 @@ and run `hostinger-api-mcp --logout` before leaving a shared or handed-over mach
 old `~/.claude.json` entry — **revoke and regenerate it in hPanel**. There is no narrower recovery:
 the token carries the whole account.
 
-To check whether an old connection left a literal value behind, use a **presence** test — never one
-that prints the match, which would put a possibly still-live credential into your scrollback:
+To check whether an old connection left a literal value behind, **parse** the file — and use a
+test that reports presence without printing the value, which would put a possibly still-live
+credential into your scrollback:
 
 ```bash
-grep -Eq '"HOSTINGER_API_TOKEN"[[:space:]]*:[[:space:]]*"[^$"]' ~/.claude.json \
-  && echo 'A literal token is stored in ~/.claude.json — rotate it in hPanel, then re-add the connection with the placeholder form.'
+node -e '
+const fs = require("fs"), p = require("os").homedir() + "/.claude.json";
+let c; try { c = JSON.parse(fs.readFileSync(p, "utf8")); }
+catch (e) { console.error("could not read " + p); process.exit(1); }
+const all = [...Object.entries(c.mcpServers || {}),
+             ...Object.values(c.projects || {}).flatMap(x => Object.entries(x.mcpServers || {}))];
+const hits = all.filter(([, s]) => { const v = (s.env || {}).HOSTINGER_API_TOKEN;
+                                     return typeof v === "string" && v && !v.includes("${"); })
+                .map(([n]) => n);
+console.log(hits.length
+  ? "Literal token stored in: " + hits.join(", ") + " — rotate it in hPanel, then re-add with the placeholder form."
+  : "No literal token in ~/.claude.json.");
+'
 ```
 
-`grep -q` prints nothing itself; the `[^$"]` excludes both a `${...}` placeholder and an empty
-value, so only a real stored secret trips it.
+It prints connection **names**, never values. A line-based `grep` is not enough here: JSON may put
+the value on the line after its key, which is valid and is a layout a pretty-printer can produce,
+and `grep` matches one line at a time — so the check would report clean while the credential sits
+in the file. (This repo's own CI no-leak guard carries a JSON-parsing pass for exactly that reason.)
+It covers user-scope `mcpServers` and per-project entries alike, and treats a `${...}` placeholder
+or an empty string as clean.
 
 
 ---
