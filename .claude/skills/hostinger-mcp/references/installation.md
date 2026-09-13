@@ -237,7 +237,7 @@ differs per connection, which is what keeps the accounts separated.
 > `claude mcp remove` a connection when an engagement ends, and unset its variable — a stale entry
 > is a standing grant on someone else's account.
 
-> **Use API tokens for multi-account.** OAuth stores ONE central credential per machine and cannot separate accounts — only env-scoped tokens can. See `.mcp.json.example` in the repo root for the JSON form across accounts.
+> **Use API tokens for multi-account.** OAuth stores ONE central credential per machine and cannot separate accounts — only env-scoped tokens can. `.mcp.json.example` in the repo root shows the same thing in JSON form, with the same `${VAR}` placeholders: a real token does not belong in that file either.
 
 ---
 
