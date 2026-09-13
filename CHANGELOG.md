@@ -12,9 +12,12 @@ but carries "no vendored implementation, lockfile, or hash".
   altered code has already executed. `installation.md` now fetches with `npm pack` (which
   installs nothing), compares against the recorded `sha512` and **exits non-zero on a
   mismatch with nothing installed**, then installs from that verified local tarball rather
-  than fetching again. The `npx` route in `.mcp.json` is pinned but cannot be verified — it
-  fetches and executes in one step, every run — and that trade is now stated where the route
-  is offered, with the verified alternative beside it. Recording the digest **here** is what
+  than fetching again. The install also exits non-zero when `npm install`
+  fails, rather than being rescued by a successful cleanup. The `npx` route in `.mcp.json` is
+  pinned but cannot be verified — it fetches and executes in one step, every run — and that
+  trade is now stated where the route is offered, in `installation.md` **and in the README**,
+  with the verified alternative beside it: the README no longer offers a bare `npm i -g` of
+  its own. Recording the digest **here** is what
   makes the check worth running: npm forbids republishing a version with different content, so a value
   held out of band catches a registry that later serves different bytes for 1.8.2. Comparing
   against `npm view … dist.integrity` instead proves much less — that digest travels from the

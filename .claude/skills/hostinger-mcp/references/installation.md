@@ -45,11 +45,19 @@ if [ "$ACTUAL" != "$EXPECTED" ]; then
   exit 1
 fi
 
-npm install -g "./$TGZ"      # or: yarn global add "./$TGZ" / pnpm add -g "./$TGZ"
-rm -f "$TGZ"
+if npm install -g "./$TGZ"; then   # or: yarn global add / pnpm add -g
+  rm -f "$TGZ"
+else
+  echo "install failed — the VERIFIED tarball is kept at ./$TGZ" >&2
+  exit 1
+fi
 ```
 
-It fails closed: on a mismatch nothing is installed and no package script has run. Do not
+It fails closed at both ends. On a digest mismatch nothing is installed and no package script
+has run; on a failed install the block exits non-zero rather than being rescued by a
+successful `rm`, so a caller cannot read "cleanup succeeded" as "install succeeded" and go on
+using whatever version was already there. The verified tarball is kept on failure, so a retry
+does not re-fetch. Do not
 replace the comparison with a bare `npm pack` that prints the digest for you to eyeball — a
 digest you read after the install is a report, not a control.
 
