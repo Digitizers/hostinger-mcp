@@ -60,12 +60,33 @@ Credentials are stored at `~/.config/hostinger-mcp/credentials.json` as a **sing
 ### Handling the token safely
 
 The token is equivalent to your hPanel password, and there is no per-tool permission at the MCP
-layer — whoever holds it can call anything. Three places it leaks by default:
+layer — whoever holds it can call anything. Keep the value in **one** place, the environment
+Claude Code itself starts with, and put a *placeholder* everywhere else.
 
-**1. Your shell history.** A token typed literally into a command (`-e HOSTINGER_API_TOKEN=hst_…`)
-is written to `~/.zsh_history` / `~/.bash_history` in plaintext, and is visible in `ps` output to
-every other user on the machine for as long as the command runs. Read it into a variable instead,
-and pass the variable:
+**Never pass the token's value to `claude mcp add`.** Quote the placeholder so your shell does not
+expand it:
+
+```bash
+claude mcp add --transport stdio \
+  -e 'HOSTINGER_API_TOKEN=${HOSTINGER_API_TOKEN:-}' \
+  -s user \
+  hostinger-vps hostinger-vps-mcp
+```
+
+The single quotes are the point. Written as `"$HOSTINGER_API_TOKEN"`, the shell expands it before
+launching anything, so the live token is in that process's arguments — readable by any other user
+on the machine through `ps` or `/proc/<pid>/cmdline` while the command runs — and `claude mcp add`
+then stores the **resolved value** in `~/.claude.json` in plaintext, where it stays until you
+remove the connection. Quoted as a placeholder, both the argument list and the stored config carry
+only the literal `${HOSTINGER_API_TOKEN:-}`, and Claude Code expands it from its own environment
+when it launches the server. Expansion applies to local- and user-scoped entries in
+`~/.claude.json`, not only to a project `.mcp.json` — an unset reference there produces a
+`Missing environment variables` warning in `claude mcp list`, which is the expansion pass running.
+The `:-` default keeps the entry loading while the variable is unset (calls then fail auth, as with
+the committed `.mcp.json`).
+
+**Where the value itself lives.** It must be in the environment **Claude Code** starts with, so
+that expansion has something to find:
 
 ```bash
 printf 'Hostinger API token: '
@@ -73,22 +94,27 @@ read -rs HOSTINGER_API_TOKEN; echo
 export HOSTINGER_API_TOKEN
 ```
 
-`read -rs` does not echo the token and the assignment never reaches the history file. Use
-`$HOSTINGER_API_TOKEN` in every command below.
+`read -rs` does not echo the token and never writes it to `~/.zsh_history` / `~/.bash_history`, but
+it only lasts for that shell — start Claude Code **from it**. For a persistent setup, put the
+export in your shell profile and keep that file at mode 600, or better, have the profile read the
+value from a keychain rather than storing it inline:
 
-**2. The persisted client config.** `claude mcp add -s user` stores what you pass it as
-**plaintext** in `~/.claude.json` — expanding a variable does not change that, it only keeps the
-value out of your history. Two consequences: check the file is not group/world readable
-(`ls -l ~/.claude.json`, then `chmod 600 ~/.claude.json`), and prefer the env-var route in Step 4,
-which keeps the token out of any config file entirely.
+```bash
+export HOSTINGER_API_TOKEN="$(security find-generic-password -s hostinger-api -w)"   # macOS
+```
 
-**3. The OAuth credential file.** `~/.config/hostinger-mcp/credentials.json` holds a live
-credential written by the upstream package. Verify its mode (`ls -l`) and tighten it if needed
-(`chmod 600`), and run `hostinger-api-mcp --logout` before leaving a shared or handed-over machine.
+In claude.ai cloud sessions the equivalent is the environment's own environment variables — set
+`HOSTINGER_API_TOKEN` there and the committed `.mcp.json` picks it up with no local setup at all.
 
-If a token may have been exposed — pasted into a chat, committed, left in a history file on a
-shared box — **revoke and regenerate it in hPanel**. There is no narrower recovery: the token
-carries the whole account.
+**The OAuth credential file.** `~/.config/hostinger-mcp/credentials.json` holds a live credential
+written by the upstream package. Check its mode (`ls -l`) and tighten it if needed (`chmod 600`),
+and run `hostinger-api-mcp --logout` before leaving a shared or handed-over machine.
+
+**If a token may have been exposed** — pasted into a chat, committed, left in a history file or an
+old `~/.claude.json` entry — **revoke and regenerate it in hPanel**. There is no narrower recovery:
+the token carries the whole account. Grep the config for a leftover literal before assuming it is
+clean: `grep -o 'HOSTINGER_API_TOKEN[^,]*' ~/.claude.json`.
+
 
 ---
 
@@ -130,14 +156,14 @@ with the token already in your environment (Step 2 — never type it into the co
 
 ```bash
 claude mcp add --transport stdio \
-  -e HOSTINGER_API_TOKEN="$HOSTINGER_API_TOKEN" \
+  -e 'HOSTINGER_API_TOKEN=${HOSTINGER_API_TOKEN:-}' \
   -s user \
   hostinger-vps hostinger-vps-mcp
 ```
 
-> **This writes the token in plaintext to `~/.claude.json`** and leaves it there until you remove
-> the connection. That is the trade for per-connection tokens; the env-var route above avoids it.
-> Check the file's mode after the first `claude mcp add` (`chmod 600 ~/.claude.json`).
+> **Keep the single quotes.** They are what stops the shell from expanding the token into this
+> command's arguments and into `~/.claude.json`; see "Handling the token safely" in Step 2. The
+> variable itself must be set in the environment Claude Code starts with.
 
 `-s user` stores it at the user level so it persists across projects. Repeat with a different name + binary for each category you need (e.g. `hostinger-dns hostinger-dns-mcp`).
 
@@ -151,28 +177,27 @@ After `claude mcp add`, **restart Claude Code** so the stdio server is launched 
 
 Use **one connection per account**, each with its own `HOSTINGER_API_TOKEN`. Name them `hostinger-<account>` (or `hostinger-<account>-<category>` if you also split by binary) so the tool prefix tells you which account you're on:
 
-Read each account's token into a variable first (Step 2), one at a time, so neither reaches your
-shell history:
+Give each account its **own variable name**, and reference it as a placeholder — one token per
+connection, none of them in a command line or in `~/.claude.json`:
 
 ```bash
-printf 'Client A token: '; read -rs TOKEN_A; echo
 claude mcp add --transport stdio \
-  -e HOSTINGER_API_TOKEN="$TOKEN_A" \
+  -e 'HOSTINGER_API_TOKEN=${HOSTINGER_TOKEN_CLIENTA:-}' \
   -s user \
   hostinger-clienta-vps hostinger-vps-mcp
 
-printf 'Client B token: '; read -rs TOKEN_B; echo
 claude mcp add --transport stdio \
-  -e HOSTINGER_API_TOKEN="$TOKEN_B" \
+  -e 'HOSTINGER_API_TOKEN=${HOSTINGER_TOKEN_CLIENTB:-}' \
   -s user \
   hostinger-clientb-vps hostinger-vps-mcp
-
-unset TOKEN_A TOKEN_B
 ```
 
-> Each of these lands in `~/.claude.json` in plaintext — one entry per account. Keep that file at
-> mode 600, and `claude mcp remove` a connection when the engagement ends rather than leaving a
-> live token behind.
+Export `HOSTINGER_TOKEN_CLIENTA` / `HOSTINGER_TOKEN_CLIENTB` in the environment Claude Code starts
+with (Step 2). The variable the server receives is always `HOSTINGER_API_TOKEN` — only the source
+differs per connection, which is what keeps the accounts separated.
+
+> `claude mcp remove` a connection when an engagement ends, and unset its variable — a stale entry
+> is a standing grant on someone else's account.
 
 > **Use API tokens for multi-account.** OAuth stores ONE central credential per machine and cannot separate accounts — only env-scoped tokens can. See `.mcp.json.example` in the repo root for the JSON form across accounts.
 
