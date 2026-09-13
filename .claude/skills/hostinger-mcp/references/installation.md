@@ -125,8 +125,15 @@ let c; try { c = JSON.parse(fs.readFileSync(p, "utf8")); }
 catch (e) { console.error("could not read " + p); process.exit(1); }
 const all = [...Object.entries(c.mcpServers || {}),
              ...Object.values(c.projects || {}).flatMap(x => Object.entries(x.mcpServers || {}))];
+// Literal material = everything outside ${...} placeholders, PLUS whatever
+// sits in their ":-" defaults - a token hides just as well in
+// ${HOSTINGER_API_TOKEN:-hst_live} as it does in a bare value.
+const literal = v => { const re = /\$\{[A-Za-z_][A-Za-z0-9_]*(?::-([^}]*))?\}/g;
+                       let n = v.replace(re, "").length;
+                       for (const m of v.matchAll(re)) n += (m[1] || "").length;
+                       return n; };
 const hits = all.filter(([, s]) => { const v = (s.env || {}).HOSTINGER_API_TOKEN;
-                                     return typeof v === "string" && v && !v.includes("${"); })
+                                     return typeof v === "string" && literal(v) > 0; })
                 .map(([n]) => n);
 console.log(hits.length
   ? "Literal token stored in: " + hits.join(", ") + " — rotate it in hPanel, then re-add with the placeholder form."
@@ -139,7 +146,12 @@ the value on the line after its key, which is valid and is a layout a pretty-pri
 and `grep` matches one line at a time — so the check would report clean while the credential sits
 in the file. (This repo's own CI no-leak guard carries a JSON-parsing pass for exactly that reason.)
 It covers user-scope `mcpServers` and per-project entries alike, and treats a `${...}` placeholder
-or an empty string as clean.
+or an empty string as clean — but **not** a placeholder carrying a literal default. A token hides
+just as well in `${HOSTINGER_API_TOKEN:-hst_live}`, which is still plaintext in the file and is
+still what the server receives whenever the variable is unset, and it survives being split across
+several defaults (`${A:-hst_}${B:-rest}`). The check sums the literal material inside and outside
+the placeholders, which is the same rule this repo's CI no-leak guard applies to the tracked MCP
+configs.
 
 
 ---
