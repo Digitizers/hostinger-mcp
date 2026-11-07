@@ -52,6 +52,13 @@ jobs:
           [ "$mismatch" = 0 ] || { echo "::error::bump every declaration in the same commit"; exit 1; }
           echo "SKILL.md, README badge${pkg_v:+, package.json} agree on $skill_v"
 
+  launcher:
+    name: bin/launch.sh picks the verified install, else the pinned npx route
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh tests/launch_test.sh
+
   skill:
     runs-on: ubuntu-latest
     env:

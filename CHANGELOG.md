@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- **The server now starts through `bin/launch.sh`, which avoids a resident `npm exec` process per session.**
+  - The launcher runs the pinned 1.8.2 from the versioned prefix that `installation.md` installs into, or from `PATH` when that install reports exactly 1.8.2.
+  - Otherwise it falls back to the same pinned `npx` route as before.
+  - Measured on a Mac with 13 Claude Code sessions: 14 `npm exec` wrappers for this server alone, about 270 MB resident.
+  - `tests/launch_test.sh` covers the lookup order with stub binaries and runs in CI.
+
 ## 1.2.1 - 2026-09-13
 
 From the ClawHub audit of 1.2.0. T08 and T09 are gone; ClawScan's remaining
