@@ -80,7 +80,7 @@ When you bump the pin, record the new digest here in the same commit.
 ### Install into the versioned prefix (no `npm exec` process per session)
 
 The plugin starts the server through `bin/launch.sh`. When the pinned version is installed in
-`~/.local/share/digitizer-mcp/hostinger-api-mcp-1.8.2` (or on `PATH` with exactly that
+`~/.local/share/hostinger-mcp/hostinger-api-mcp-1.8.2` (or on `PATH` with exactly that
 version), it runs that install directly. Otherwise it falls back to the `npx` route below,
 which keeps an `npm exec` process alive beside every session's server. With many Claude Code
 sessions those wrappers add up.
@@ -89,7 +89,7 @@ To install into the prefix, run the fetch-and-verify block above, then replace i
 `npm install -g "./$TGZ"` line with:
 
 ```bash
-npm install --prefix "$HOME/.local/share/digitizer-mcp/hostinger-api-mcp-1.8.2" "./$TGZ"
+npm install --prefix "$HOME/.local/share/hostinger-mcp/hostinger-api-mcp-1.8.2" "./$TGZ"
 ```
 
 A different global version, such as an older `npm install -g`, is ignored: the launcher checks

@@ -3,7 +3,7 @@
 # verified install of the pinned version is present; otherwise use the pinned npx route.
 #
 # Lookup order, first match wins:
-#   1. $HOSTINGER_MCP_PREFIX (default ~/.local/share/digitizer-mcp/hostinger-api-mcp-$PIN),
+#   1. $HOSTINGER_MCP_PREFIX (default ~/.local/share/hostinger-mcp/hostinger-api-mcp-$PIN),
 #      the versioned prefix that references/installation.md installs into
 #   2. the binary on PATH, only if its package.json says exactly $PIN
 #   3. npx -y -p hostinger-api-mcp@$PIN (pinned, unverified; see installation.md)
@@ -17,7 +17,7 @@ case "$BIN" in
   *) echo "launch.sh: unknown Hostinger MCP binary: $BIN" >&2; exit 2 ;;
 esac
 
-PREFIX=${HOSTINGER_MCP_PREFIX:-$HOME/.local/share/digitizer-mcp/hostinger-api-mcp-$PIN}
+PREFIX=${HOSTINGER_MCP_PREFIX:-$HOME/.local/share/hostinger-mcp/hostinger-api-mcp-$PIN}
 pinned() {  # $1 = package dir; true only when its package.json declares exactly $PIN
   v=$(sed -n 's/^[[:space:]]*"version":[[:space:]]*"\([^"]*\)".*/\1/p' "$1/package.json" 2>/dev/null | head -n 1)
   [ "$v" = "$PIN" ]
